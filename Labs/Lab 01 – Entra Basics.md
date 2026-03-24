@@ -1,85 +1,77 @@
 # Lab 01 – Entra Basics
 
-## Syfte
-Syftet med labben var att bygga praktisk grundförståelse för **Microsoft Entra ID** och centrala delar inom **Identity and Access Management (IAM)**. Fokus låg på att arbeta med användare, grupper, administrativa enheter, autentiseringsrelaterade inställningar och inbyggda administrativa roller för att förstå hur identiteter organiseras, hur åtkomst kan struktureras och hur privilegier bör hanteras i en modern molnbaserad identitetsplattform.
+## Purpose
+The purpose of this lab was to build practical foundational understanding of **Microsoft Entra ID** and core concepts within **Identity and Access Management (IAM)**. The focus was on working with users, groups, administrative units, authentication-related settings, and built-in administrative roles to understand how identities are organized, how access can be structured, and how privileges should be handled in a modern cloud-based identity platform.
 
-## Miljö
-Labben genomfördes i en egen **testtenant i Microsoft Entra**, vilket gjorde det möjligt att arbeta i en säker och kontrollerad labbmiljö utan påverkan på produktion.
+## Environment
+The lab was carried out in a dedicated **Microsoft Entra test tenant**, which made it possible to work in a safe and controlled lab environment without affecting production.
 
-## Steg jag gjorde
-Jag började med att skapa fem testanvändare i **Identity → Users → All users** för att simulera olika funktioner i en organisation:
+## Steps Performed
+I started by creating five test users in **Identity → Users → All users** to simulate different roles in an organization:
 
-- **Anna HR**
-- **Erik IT**
-- **Sara Sales**
-- **Admin Test**
-- **Temp Consultant**
+- Anna HR
+- Erik IT
+- Sara Sales
+- Admin Test
+- Temp Consultant
 
-Därefter skapade jag fyra **Security Groups** i **Identity → Groups → All groups** och lade till användare utifrån funktion och användningsområde:
+I then created four **Security Groups** in **Identity → Groups → All groups** and assigned users based on role and purpose:
 
 - **HR-Users** → Anna HR
 - **IT-Admins** → Erik IT, Admin Test
 - **MFA-Pilot** → Temp Consultant
 - **Sales-Users** → Sara Sales
 
-Denna struktur användes för att efterlikna hur en organisation kan gruppera identiteter baserat på avdelning, administrativ funktion och säkerhetsinitiativ, exempelvis införande av MFA i en pilotgrupp.
+This structure was used to simulate how an organization can group identities based on department, administrative function, and security initiatives such as MFA rollout.
 
-Som nästa steg gick jag till **Identity → Administrative units** och skapade en **Administrative Unit** med namnet **Students**. Jag lade därefter till två testanvändare i denna administrativa enhet för att förstå hur administration kan avgränsas till en viss del av katalogen.
+Next, I went to **Identity → Administrative units** and created an **Administrative Unit** named **Students**. I then added two test users to this administrative unit to understand how administration can be scoped to a specific part of the directory.
 
-Jag gick sedan till **Identity → Roles & administrators**, där jag granskade följande inbyggda roller:
+I also reviewed the following built-in roles in **Identity → Roles & administrators**:
 
 - **Global Administrator**
 - **User Administrator**
 - **Security Administrator**
 - **Privileged Role Administrator**
 
-I rollgranskningen fokuserade jag på vilket ansvar rollen verkar ha, varför rollen är säkerhetsmässigt viktig eller känslig, och om rollen framstår som bred eller mer avgränsad.
+The role review focused on the apparent responsibility of each role, why the role is security-sensitive or important, and whether the role appears broad or more limited in scope.
 
-**Global Administrator** framstod som den bredaste och mest privilegierade rollen, eftersom den kan hantera i princip alla delar av Microsoft Entra ID och andra Microsoft-tjänster som använder Entra-identiteter. Rollen är därför mycket känslig ur ett säkerhetsperspektiv.
+Finally, I reviewed **Password reset → Properties** and confirmed that **Self-Service Password Reset** was set to **None** for standard end users. At the same time, I noted that administrators were still enabled for self-service password reset and were required to use two authentication methods for password reset.
 
-**User Administrator** framstod som en bred men mer avgränsad roll, med fokus på att hantera användare och grupper samt vissa lösenordsåterställningar. Rollen är viktig eftersom den påverkar identiteter direkt och därmed också organisationens åtkomsthantering.
+I then reviewed **Authentication methods → Policies** and observed which authentication methods were enabled or disabled in the tenant. I noted that **Microsoft Authenticator**, **Temporary Access Pass**, **Software OATH tokens**, and **Email OTP** were enabled for **all users**.
 
-**Security Administrator** framstod som en specialiserad men kraftfull roll, eftersom den ger åtkomst till säkerhetsinformation, rapporter och vissa säkerhetsrelaterade konfigurationer i Entra ID och Microsoft 365. Rollen är viktig eftersom den påverkar miljöns säkerhetsstyrning.
+## Results
+The lab resulted in a working test environment where users, groups, group memberships, and an administrative unit could be verified in the Microsoft Entra portal. By creating a simple identity structure with clearly defined user types and group assignments, I gained practical experience in how Entra can be used to organize identities in a structured way.
 
-**Privileged Role Administrator** framstod som en smalare men mycket känslig roll, eftersom den hanterar rolltilldelningar i Microsoft Entra ID samt funktioner kopplade till **Privileged Identity Management (PIM)**. Rollen är särskilt viktig eftersom den påverkar vem som får administrativa privilegier.
+I also gained a clearer understanding of the difference between **groups**, **roles**, and **Administrative Units**. Groups are used to organize users and simplify access management, roles are used to grant administrative privileges, and Administrative Units are used to scope administration to a specific part of the directory.
 
-Avslutningsvis gick jag till **Password reset → Properties** och verifierade att **Self-Service Password Reset** var satt till **None** för vanliga slutanvändare. Jag noterade samtidigt att administratörer ändå är aktiverade för self-service password reset och att de måste använda två autentiseringsmetoder vid lösenordsåterställning.
+Reviewing the built-in roles also provided a clearer picture of how different administrative roles represent different levels of responsibility, risk, and privilege. Reviewing **Password reset** and **Authentication methods** also helped me understand how authentication and recovery settings contribute to identity security.
 
-Jag gick därefter till **Authentication methods → Policies** och granskade vilka autentiseringsmetoder som var aktiverade respektive inaktiverade i tenantet. Jag noterade att **Microsoft Authenticator**, **Temporary Access Pass**, **Software OATH tokens** och **Email OTP** var aktiverade för **all users**.
+## Security Reflection
+This lab clearly showed that **groups, administrative roles, and administrative units are not the same thing**, even though all three influence how identities are managed in Microsoft Entra. Groups are mainly used to organize users and simplify access, roles represent elevated privileges, and Administrative Units are used to scope administration.
 
-## Resultat
-Labben resulterade i en fungerande testmiljö där användare, grupper, gruppmedlemskap och en administrativ enhet kunde verifieras korrekt i Microsoft Entra-portalen. Genom att skapa en enkel identitetsstruktur med tydliga användartyper och gruppindelningar fick jag praktisk erfarenhet av hur Entra kan användas för att organisera identiteter på ett strukturerat sätt.
+One important lesson was why **Global Administrator** should be tightly limited. The role has very broad access and can affect large parts of the environment. If such an account is compromised or misused, the consequences can be severe. Because of this, highly privileged roles should only be assigned to a very small number of accounts with a clear operational need.
 
-Jag fick också en tydligare förståelse för skillnaden mellan **grupper**, **roller** och **Administrative Units**. Grupper används för att samla användare och förenkla åtkomsthantering, roller används för att ge administrativa privilegier och Administrative Units används för att avgränsa administration till en viss del av katalogen.
+The lab also showed why **group-based access** is often better than assigning rights directly to individual users. When access is managed through groups, administration becomes more structured, easier to review, and more scalable over time.
 
-Granskningen av de inbyggda rollerna gav dessutom en bättre bild av hur olika administrativa roller innebär olika nivåer av ansvar, risk och privilegier. Genom att granska **Password reset** och **Authentication methods** kunde jag även se hur autentiseringsmetoder och återställningsinställningar påverkar säkerheten i identitetsmiljön.
+Reviewing **Password reset** and **Authentication methods** also showed that secure identity management is not only about creating users and groups, but also about how users authenticate and recover access. Different authentication methods represent different security levels, and administrative accounts require stronger protection than standard users.
 
-## Säkerhetsreflektion
-Labben visade tydligt att **grupper, administrativa roller och administrativa enheter inte är samma sak**, även om de alla påverkar hur identiteter hanteras i Microsoft Entra. Grupper används främst för att organisera användare och förenkla åtkomsthantering, roller innebär förhöjda privilegier och Administrative Units används för att avgränsa administration.
+## Recommendation to Customer
+I recommend that organizations build their access model with **groups as the foundation**, where users are organized by function, department, or security need. This is usually better than assigning rights directly to individual users, because it provides better structure, simpler administration, and stronger control over who has access to what.
 
-En viktig insikt var varför **Global Administrator** bör begränsas så mycket som möjligt. Rollen har mycket bred åtkomst och kan påverka stora delar av miljön. Om ett sådant konto komprometteras, eller används felaktigt, kan konsekvenserna bli omfattande. Därför bör den här typen av roll endast tilldelas till ett fåtal konton med tydligt behov.
+I also recommend that administrative roles be handled separately and very carefully. In particular, roles such as **Global Administrator** should be limited and only assigned when there is a clear business need. Highly privileged roles should be reviewed regularly and protected by strong security controls to reduce the risk of overprivileged accounts.
 
-Labben visade även varför **grupper ofta är bättre än direkt tilldelning av rättigheter till enskilda användare**. När åtkomst styrs via grupper blir administrationen mer strukturerad, enklare att följa upp och mer skalbar över tid. Det blir också lättare att lägga till eller ta bort användare utan att behöva hantera varje behörighet manuellt.
+For larger or more complex environments, it can also be useful to use **Administrative Units** to scope administration between different parts of the organization.
 
-Granskningen av **Password reset** och **Authentication methods** visade dessutom att säker identitetshantering inte bara handlar om att skapa användare och grupper, utan också om hur användare får verifiera sig och återställa sina lösenord. Det blev tydligt att olika autentiseringsmetoder innebär olika säkerhetsnivåer och att administrativa konton kräver starkare skydd än vanliga användare.
-
-## Rekommendation till kund
-Jag rekommenderar att organisationer bygger sin åtkomstmodell med **grupper som grund**, där användare organiseras utifrån funktion, avdelning eller säkerhetsbehov. Det är normalt bättre än att tilldela rättigheter direkt till enskilda användare, eftersom det ger bättre struktur, enklare administration och bättre kontroll över vem som har åtkomst till vad.
-
-Jag rekommenderar också att administrativa roller hanteras separat och mycket restriktivt. Särskilt roller som **Global Administrator** bör hållas få och endast tilldelas när det finns ett tydligt verksamhetsbehov. Högt privilegierade roller bör följas upp regelbundet och omfattas av tydliga säkerhetsrutiner för att minska risken för överprivilegierade konton och felaktig åtkomst.
-
-För större eller mer komplexa miljöer kan det även vara lämpligt att använda **Administrative Units** för att avgränsa administration mellan olika delar av organisationen.
-
-## Vad jag lärde mig
-- hur användare skapas och administreras i Microsoft Entra
-- hur grupper kan användas för att strukturera identiteter utifrån funktion och behov
-- hur gruppmedlemskap kan stödja en mer kontrollerad och skalbar åtkomstmodell
-- skillnaden mellan en grupp, en administrativ roll och en Administrative Unit
-- varför **Global Administrator** är en mycket känslig roll som bör begränsas
-- varför gruppbaserad åtkomst ofta är bättre än direkt tilldelning till enskilda användare
-- hur inbyggda roller i Entra skiljer sig åt i ansvar, känslighet och privilegienivå
-- varför **least privilege** är en grundprincip inom säker IAM-styrning
-- att **Self-Service Password Reset** kan vara olika konfigurerat för vanliga användare och administratörer
-- att administratörer ofta har striktare säkerhetskrav vid lösenordsåterställning
-- att **Authentication methods** styr vilka sätt användare får använda för att autentisera sig
-- att **Microsoft Authenticator** och **Temporary Access Pass** verkar vara viktiga metoder i moderna Entra-miljöer
+## What I Learned
+- how users are created and managed in Microsoft Entra
+- how groups can be used to structure identities by function and need
+- how group membership supports a more controlled and scalable access model
+- the difference between a group, an administrative role, and an Administrative Unit
+- why **Global Administrator** is a highly sensitive role that should be limited
+- why group-based access is often better than direct assignment to individual users
+- how built-in Entra roles differ in responsibility, sensitivity, and privilege level
+- why **least privilege** is a core principle in secure IAM governance
+- that **Self-Service Password Reset** can be configured differently for end users and administrators
+- that administrators often have stricter password reset security requirements
+- that **Authentication methods** control how users are allowed to authenticate
+- that **Microsoft Authenticator** and **Temporary Access Pass** appear to be important methods in modern Entra environments
