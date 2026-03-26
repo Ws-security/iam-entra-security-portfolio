@@ -37,12 +37,12 @@ Hands-on labs focused on Microsoft Entra and IAM fundamentals.
 | Lab | Topic | Status |
 |-----|-------|--------|
 | [Lab 01 – Tenant Setup](labs/lab-01-tenant-setup.md) | Microsoft 365 tenant, Entra ID P2, users, groups | ✅ Complete |
-| Lab 02 – MFA & SSPR | Authentication methods, Self-Service Password Reset | 🔄 In progress |
-| Lab 03 – Conditional Access | Zero Trust policies, Named Locations, What If | ⏳ Upcoming |
-| Lab 04 – B2B & External Identities | Guest access, Cross-tenant settings, Access Reviews | ⏳ Upcoming |
-| Lab 05 – PIM | Privileged Identity Management, just-in-time access | ⏳ Upcoming |
-| Lab 06 – Identity Protection | Risk policies, Sign-in risk, User risk | ⏳ Upcoming |
-| Lab 07 – App Registrations | OAuth2, OIDC, API permissions, token inspection | ⏳ Upcoming |
+| [Lab 02 – MFA & SSPR & Passwordless](labs/lab-02-mfa-sspr-passwordless.md) | Authentication methods, Self-Service Password Reset, Passwordless | ✅ Complete |
+| [Lab 03 – App Registrations & OAuth2](labs/lab-03-app-registrations-oauth2.md) | OAuth2, OIDC, API permissions, token inspection | ✅ Complete |
+| Lab 04 – Conditional Access | Zero Trust policies, Named Locations, What If | ⏳ Upcoming |
+| Lab 05 – B2B & External Identities | Guest access, Cross-tenant settings, Access Reviews | ⏳ Upcoming |
+| Lab 06 – PIM | Privileged Identity Management, just-in-time access | ⏳ Upcoming |
+| Lab 07 – Identity Protection | Risk policies, Sign-in risk, User risk | ⏳ Upcoming |
 | Lab 08 – Entitlement Management | Access Packages, Access Reviews, governance | ⏳ Upcoming |
 
 ### 📁 cases
