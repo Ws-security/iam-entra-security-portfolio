@@ -29,6 +29,8 @@ All labs are performed in a dedicated Microsoft 365 Business Premium + Entra ID 
 
 ## Repository Structure
 
+> Lab writeups are written in Swedish as this portfolio primarily targets the Swedish cybersecurity consulting market.
+
 ### 📁 labs
 Hands-on labs focused on Microsoft Entra and IAM fundamentals.
 
