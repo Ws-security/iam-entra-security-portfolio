@@ -122,7 +122,7 @@ Date:         2026-03-26, 12:17
 Status:       Success
 Status reason: User successfully reset password
 Initiated by: bob@entrajohanlabb.onmicrosoft.com
-IP address:   80.216.252.194
+IP address:   <REDACTED>
 Category:     UserManagement
 ```
 

@@ -72,8 +72,8 @@ Entra admin center → Applications → App registrations → + New registration
 
 | Värde | ID |
 |-------|-----|
-| Application (client) ID | 18bebc73-9a3d-432a-b59c-38b5a8e86221 |
-| Directory (tenant) ID | 5736ccf5-35e2-4bdd-aadd-6469fabe0099 |
+| Application (client) ID | `<CLIENT_ID>` |
+| Directory (tenant) ID | `<TENANT_ID>` |
 
 ### 2. Skapa Client Secret
 
@@ -93,8 +93,8 @@ MyTestApp → Certificates & secrets → + New client secret
 Byggde Authorization Code Flow-URL manuellt och öppnade i webbläsaren:
 
 ```
-https://login.microsoftonline.com/5736ccf5-35e2-4bdd-aadd-6469fabe0099/oauth2/v2.0/authorize
-  ?client_id=18bebc73-9a3d-432a-b59c-38b5a8e86221
+https://login.microsoftonline.com/<TENANT_ID>/oauth2/v2.0/authorize
+  ?client_id=<CLIENT_ID>
   &response_type=code
   &redirect_uri=https://jwt.ms
   &scope=openid profile
@@ -122,7 +122,7 @@ Konfigurerade en POST-förfrågan i Postman:
 
 **URL:**
 ```
-https://login.microsoftonline.com/5736ccf5-35e2-4bdd-aadd-6469fabe0099/oauth2/v2.0/token
+https://login.microsoftonline.com/<TENANT_ID>/oauth2/v2.0/token
 ```
 
 **Body (x-www-form-urlencoded):**
@@ -130,7 +130,7 @@ https://login.microsoftonline.com/5736ccf5-35e2-4bdd-aadd-6469fabe0099/oauth2/v2
 | Key | Value |
 |-----|-------|
 | grant_type | authorization_code |
-| client_id | 18bebc73-9a3d-432a-b59c-38b5a8e86221 |
+| client_id | `<CLIENT_ID>` |
 | client_secret | [client secret value] |
 | redirect_uri | https://jwt.ms |
 | code | [authorization code] |
@@ -157,13 +157,13 @@ Kopierade access token och dekodade på jwt.ms. Viktiga claims:
 |-------|-------|-----------|
 | `name` | Alice Andersson | Inloggad användare |
 | `upn` | alice@entrajohanlabb.onmicrosoft.com | Username |
-| `tid` | 5736ccf5-... | Tenant ID |
-| `appid` | 18bebc73-... | MyTestApp |
+| `tid` | `<TENANT_ID>` | Tenant ID |
+| `appid` | `<CLIENT_ID>` | MyTestApp |
 | `scp` | openid profile email | Beviljade scopes |
 | `exp` | 2026-03-26 14:38 | Token utgår om ~1h |
 | `amr` | pwd | Autentiserad med lösenord (ej MFA) |
-| `oid` | 2aae53a3-... | Alices unika objekt-ID i Entra |
-| `ipaddr` | 80.216.252.194 | IP-adress vid autentisering |
+| `oid` | `<REDACTED>` | Alices unika objekt-ID i Entra |
+| `ipaddr` | `<REDACTED>` | IP-adress vid autentisering |
 
 **Säkerhetsnotering om `amr: pwd`:**
 Access token visar att Alice autentiserade med enbart lösenord, utan MFA. Detta illustrerar varför Conditional Access är kritiskt – utan CA-policies kan applikationer erhålla tokens utan MFA-krav, även i miljöer där MFA är "aktiverat". CA-policies enforcar MFA på policy-nivå, inte bara på användar-nivå.
