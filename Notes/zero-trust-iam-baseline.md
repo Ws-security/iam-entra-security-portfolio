@@ -19,7 +19,7 @@ Det här är min sammanfattning av de tio kontrollerna jag alltid börjar med. V
 
 ## Kontroll 1 – MFA för alla användare
 
-Lösenord stjäls. Det är inte en fråga om om, det är en fråga om när. MFA tar fem minuter att sätta upp och blockerar enligt Microsoft över 99,9 % av automatiserade kontoattacker. Att inte ha MFA aktiverat 2026 är ungefär som att lämna ytterdörren olåst.
+Lösenord stjäls. Det är inte en fråga om, det är en fråga om när. MFA tar fem minuter att sätta upp och blockerar enligt Microsoft över 99,9 % av automatiserade kontoattacker. Att inte ha MFA aktiverat 2026 är ungefär som att lämna ytterdörren olåst.
 
 **Gör så här:**
 ```
