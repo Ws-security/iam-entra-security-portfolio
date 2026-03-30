@@ -1,26 +1,24 @@
 # Lab 05 – B2B Gäståtkomst & External Identities
 
-**Datum:** Mars 2026
-**Miljö:** Microsoft 365 Business Premium + Microsoft Entra ID P2
-**Tenant:** \<tenant\>.onmicrosoft.com
-**Svårighetsgrad:** Medel
+**Datum:** Mars 2026  
+**Miljö:** Microsoft 365 Business Premium + Microsoft Entra ID P2  
+**Tenant:** \<tenant\>.onmicrosoft.com  
+**Svårighetsgrad:** Medel  
 **Tidsåtgång:** ~1.5 timmar
 
 ---
 
 ## Scenario
 
-I moderna organisationer samarbetar anställda regelbundet med externa parter – konsulter, partners, leverantörer och kunder. Microsoft Entra ID B2B (Business-to-Business) gör det möjligt att bjuda in externa användare till din tenant utan att de behöver ett konto i din organisation.
-
-En IAM-konsult behöver förstå hur B2B-åtkomst konfigureras säkert, hur gäståtkomst begränsas och hur organisationen säkerställer att externa användare inte har mer åtkomst än nödvändigt – och att den åtkomsten regelbundet granskas.
+Det här labbet konfigurerar B2B-gäståtkomst och sätter upp en löpande Access Review för externa användare. Diana bjuds in som extern gästanvändare, placeras i External-Guests-gruppen och en månadsvis review konfigureras som automatiskt tar bort gäster om ingen ansvarar för dem.
 
 ---
 
 ## Mål
 
 - Konfigurera External Collaboration Settings enligt säker baseline
-- Bjuda in en extern B2B-gästanvändare (Diana)
-- Lägga till gästanvändaren i en dedikerad säkerhetsgrupp
+- Bjuda in Diana som extern B2B-gästanvändare
+- Lägga till Diana i External-Guests-gruppen
 - Konfigurera och starta en månadsvis Access Review för gästanvändare
 
 ---
@@ -33,15 +31,9 @@ En IAM-konsult behöver förstå hur B2B-åtkomst konfigureras säkert, hur gäs
 
 ---
 
-## Teoriöversikt: B2B och Least Privilege för externa användare
+## Hur B2B fungerar
 
-B2B-gäster autentiserar med sin egen identitetsleverantör (t.ex. Gmail, Microsoft-konto) men får åtkomst till resurser i din tenant. Deras UPN i Entra ID slutar med `#EXT#@<tenant>.onmicrosoft.com` – vilket indikerar att de är externa.
-
-Tre viktiga principer för säker B2B-hantering:
-
-1. **Begränsa gästers directory-åtkomst** – gäster ska inte kunna se hela organisationens användarkatalogt
-2. **Begränsa vem som får bjuda in** – inte alla anställda bör ha rätt att bjuda in externa användare
-3. **Regelbunden granskning** – Access Reviews säkerställer att gäster inte behåller åtkomst längre än nödvändigt
+B2B-gäster autentiserar med sin egen identitetsleverantör (Gmail, Microsoft-konto) men får åtkomst till resurser i tenanten. Deras UPN slutar med `#EXT#@<tenant>.onmicrosoft.com`.
 
 ---
 
@@ -55,13 +47,11 @@ Entra admin center → External Identities → External collaboration settings
 
 | Inställning | Valt värde | Motivering |
 |-------------|------------|------------|
-| Guest user access | Restricted to own directory objects | Gäster ska inte kunna enumera hela organisationens användare |
-| Guest invite restrictions | Only users assigned to specific admin roles | Minimerar risken för okontrollerade gästinbjudningar |
-| Enable guest self-service sign up | No | Förhindrar okontrollerad självregistrering |
-| Allow external users to remove themselves | Yes | Rekommenderat – gäster kan avsluta åtkomst själva |
-| Collaboration restrictions | Allow invitations to any domain | Öppet för labbet – i produktion bör detta begränsas |
-
-> **Säkerhetsprincip:** Standardinställningen "Guest users have the same access as members" är alltför generös för de flesta organisationer. "Most restrictive" är rätt startpunkt och kan öppnas upp vid behov.
+| Guest user access | Restricted to own directory objects | Gäster ska inte kunna enumera hela katalogens användare |
+| Guest invite restrictions | Only users assigned to specific admin roles | Minimerar okontrollerade gästinbjudningar |
+| Enable guest self-service sign up | No | Förhindrar självregistrering |
+| Allow external users to remove themselves | Yes | Gäster kan avsluta åtkomst själva |
+| Collaboration restrictions | Allow invitations to any domain | Öppet för labbet |
 
 ### 2. Bjuda in Diana som B2B-gäst
 
@@ -74,20 +64,18 @@ Entra admin center → Identity → Users → + Invite external user
 | Display name | Diana Guest |
 | Email | \<externt e-postkonto\> |
 
-Diana fick ett inbjudningsmail från Microsoft med ämnesraden *"You're invited to the Entra Lab organization"*. Efter att inbjudan accepterades skapades ett gästkonto automatiskt i tenanten.
+Diana fick ett inbjudningsmail och skapades automatiskt som gästkonto i tenanten efter att inbjudan accepterades.
 
 **Gästkontots UPN-format:**
 ```
 diana_<extern-domän>#EXT#@<tenant>.onmicrosoft.com
 ```
 
-Detta format indikerar att användaren är extern och autentiserar via sin egen identitetsleverantör.
-
 **Verifiering:**
 ```
 Entra admin center → Identity → Users → filtrera på User type: Guest
 ```
-Diana visas med **User type: Guest** ✅
+Diana visas med User type: Guest ✅
 
 ### 3. Lägga till Diana i External-Guests-gruppen
 
@@ -95,18 +83,13 @@ Diana visas med **User type: Guest** ✅
 Identity → Groups → External-Guests → Members → + Add members → Diana Guest
 ```
 
-Dedikerade gästgrupper är best practice eftersom de:
-- Möjliggör gruppstyrd CA-policy specifikt för gäster
-- Förenklar Access Reviews – en review per grupp istället för per användare
-- Ger tydlig översikt över alla externa användare i organisationen
+Dedikerade gästgrupper gör det enklare att styra åtkomst via CA-policies och köra Access Reviews per grupp istället för per användare.
 
 ### 4. Konfigurera Access Review för gästanvändare
 
 ```
 External Identities → Access reviews → + New access review → Resource review
 ```
-
-**Reviews-inställningar:**
 
 | Inställning | Värde |
 |-------------|-------|
@@ -116,38 +99,34 @@ External Identities → Access reviews → + New access review → Resource revi
 | Start date | 2026-03-27 |
 | End | Never |
 
-**Settings-inställningar:**
+| Inställning | Värde |
+|-------------|-------|
+| Auto apply results | Ja |
+| If reviewers don't respond | Remove access |
+| Action on denied guests | Remove user's membership |
+| No sign-in within 30 days | Aktiverat |
+| Justification required | Ja |
 
-| Inställning | Värde | Motivering |
-|-------------|-------|------------|
-| Auto apply results | Ja | Automatisk borttagning utan manuell åtgärd |
-| If reviewers don't respond | Remove access | Säker default – ingen respons = ingen åtkomst |
-| Action on denied guests | Remove user's membership | Tas bort från gruppen automatiskt |
-| No sign-in within 30 days | Aktiverat | Flaggar inaktiva gäster för reviewer |
-| Justification required | Ja | Reviewer måste motivera sitt beslut |
-
-> **Varför "Remove access" om reviewers inte svarar?** I verkligheten är en reviewer som inte svarar lika problematiskt som en som aktivt nekar åtkomst. Säker default är att ta bort åtkomst och låta användaren begära den igen vid behov.
+"Remove access" som default om reviewern inte svarar är ett medvetet val. En reviewer som inte svarar ger ingen trygghet om att gästen faktiskt behöver åtkomsten. Det är enklare att låta användaren begära om den om den faktiskt behövs.
 
 ---
 
 ## Troubleshooting
 
-### Problem 1: Access Review visade "Not started" och inget att granska
-**Orsak:** Reviewen hade precis skapats och hade inte aktiverats ännu.
-**Lösning:** Access Reviews tar tid att propagera. Granskning blir tillgänglig när reviewen startar aktivt.
+### Access Review visade "Not started" och inget att granska
+**Orsak:** Reviewen hade precis skapats och hade inte aktiverats ännu.  
+**Lösning:** Access Reviews propagerar med fördröjning. Granskning blir tillgänglig när reviewen startar aktivt.
 
-### Problem 2: Inga reviews synliga i myaccess.microsoft.com
-**Orsak:** External-Guests-gruppen saknade en owner. Reviewers var satt till "Group owner(s)" men ingen owner fanns tilldelad.
-**Lösning:** Lade till admin-kontot som owner på External-Guests-gruppen under Identity → Groups → External-Guests → Owners.
+### Inga reviews synliga i myaccess.microsoft.com
+**Orsak:** External-Guests-gruppen saknade en owner. Reviewers var satt till "Group owner(s)" men ingen owner fanns.  
+**Lösning:** Lade till admin-kontot som owner under Identity → Groups → External-Guests → Owners.
 
-> **Viktig lärdom:** Access Reviews med "Group owner(s)" som reviewer kräver att gruppen faktiskt har en owner – annars skickas inga review-notifikationer och ingen kan genomföra granskningen. I produktionsmiljöer ska alla grupper ha minst en utsedd owner.
-
-### Problem 3: Azure-prenumeration krävs för Access Reviews för gäster
-**Notering:** Microsoft meddelade i januari 2026 att Access Reviews för gästanvändare kräver en länkad Azure-prenumeration för fakturering. Detta är en förändring som påverkar labbmiljöer utan Azure-subscription.
+### Azure-prenumeration krävs för Access Reviews för gäster
+Microsoft meddelade i januari 2026 att Access Reviews för gästanvändare kräver en länkad Azure-prenumeration. Påverkar labbmiljöer utan Azure-subscription.
 
 ---
 
-## Verifiering – sammanfattning
+## Verifiering
 
 | Kontroll | Status |
 |----------|--------|
@@ -160,21 +139,11 @@ External Identities → Access reviews → + New access review → Resource revi
 
 ---
 
-## Säkerhetsreflektioner
+## Reflektioner
 
-**B2B är inte samma sak som säker gäståtkomst:** Att bjuda in en extern användare skapar bara ett konto – det kontrollerar inte vad de kan komma åt. Gästers åtkomst bör alltid styras via grupper och CA-policies, inte via direkta rolltilldelningar.
+Felet med saknad group owner var oväntat. Det är ett av de fall där Entra inte ger ett tydligt felmeddelande, det ser bara ut som att ingenting händer. I produktion bör alla grupper ha minst en utsedd owner från start, annars fungerar inte Access Reviews med "Group owner(s)".
 
-**Access Reviews är kritiska för compliance:** Utan regelbunden granskning tenderar gästkonton att ackumuleras över tid. En extern konsult som slutade arbeta med organisationen för ett år sedan kan fortfarande ha aktiv åtkomst. Access Reviews med automatisk borttagning eliminerar detta problem.
-
-**Geoblockering gäller även gäster:** CA-policyn BLOCK-SIGNIN-OUTSIDE-SWEDEN (Lab 04) gäller även Dianas konto. Om Diana loggar in från ett land utanför Sverige blockeras inloggningen. Detta är viktigt att kommunicera till externa användare.
-
----
-
-## Nästa steg
-
-➡️ **Lab 06** – Privileged Identity Management (PIM)
-➡️ **Lab 07** – Identity Protection och riskbaserade policies
-➡️ **Lab 08** – Entitlement Management och Access Packages
+CA-policyn från Lab 04 gäller även Diana. Om hon loggar in från utanför Sverige blockeras hon. Det är värt att informera externa användare om om de arbetar från andra länder.
 
 ---
 

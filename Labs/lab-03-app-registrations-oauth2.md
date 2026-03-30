@@ -1,25 +1,23 @@
 # Lab 03 – App Registrations, OAuth2 & OIDC
 
-**Datum:** Mars 2026
-**Miljö:** Microsoft 365 Business Premium + Microsoft Entra ID P2
-**Tenant:** entrajohanlabb.onmicrosoft.com
-**Svårighetsgrad:** Medel
+**Datum:** Mars 2026  
+**Miljö:** Microsoft 365 Business Premium + Microsoft Entra ID P2  
+**Tenant:** entrajohanlabb.onmicrosoft.com  
+**Svårighetsgrad:** Medel  
 **Tidsåtgång:** ~1.5 timmar
 
 ---
 
 ## Scenario
 
-När en applikation behöver logga in användare eller komma åt Microsoft-resurser (som Graph API) måste den registreras i Entra ID. App Registrations är grunden för hur moderna applikationer integreras med Microsoft-identitetsplattformen via OAuth2 och OIDC.
-
-I enterprise-miljöer hanterar IAM-konsulter regelbundet app registrations – vid onboarding av nya SaaS-applikationer, vid integration av interna system med Microsoft Graph, och vid granskning av vilka permissions applikationer har beviljats. Felaktigt konfigurerade API permissions är en vanlig säkerhetsrisk i organisationer.
+Det här labbet registrerar en testapplikation i Entra ID och kör Authorization Code Flow manuellt via webbläsare och Postman. Målet är att förstå hur tokens utfärdas och vad de faktiskt innehåller.
 
 ---
 
 ## Mål
 
 - Registrera en applikation i Entra ID
-- Genomföra Authorization Code Flow manuellt via webbläsare och Postman
+- Genomföra Authorization Code Flow manuellt
 - Dekoda och analysera en JWT access token
 - Konfigurera API permissions med admin consent
 - Förstå skillnaden mellan Delegated och Application permissions
@@ -30,24 +28,20 @@ I enterprise-miljöer hanterar IAM-konsulter regelbundet app registrations – v
 
 - Slutfört Lab 01 och Lab 02
 - Postman installerat
-- Testanvändare Alice konfigurerad med MFA
+- Alice konfigurerad med MFA
 
 ---
 
-## Teoriöversikt: OAuth2 Authorization Code Flow
+## OAuth2 Authorization Code Flow
 
-OAuth2 Authorization Code Flow är den säkraste och mest använda autentiseringsmetoden för webbapplikationer. Flödet fungerar i två steg:
+Flödet sker i två steg. Först loggar användaren in och Microsoft returnerar en Authorization Code. Sedan byter appen Authorization Code mot en Access Token i en server-to-server-förfrågan.
 
 ```
-1. Användaren loggar in → Microsoft returnerar en Authorization Code (engångskod)
-2. Appen byter Authorization Code mot en Access Token via en server-to-server-förfrågan
+1. Användaren loggar in → Microsoft returnerar Authorization Code (engångskod, giltig ~10 min)
+2. Appen byter Authorization Code mot Access Token via POST till token-endpoint
 ```
 
-**Authorization Code** är en tillfällig engångskod som representerar användarens godkännande. Den är giltig i ca 10 minuter och kan bara användas en gång – som en kassakvittens som byts mot varan.
-
-**Access Token** är den faktiska nyckeln som ger applikationen tillgång till resurser. Den är en JWT (JSON Web Token) som innehåller claims om användaren, applikationen och vilka behörigheter som beviljats.
-
-**Varför två steg?** Authorization Code skickas via webbläsaren (osäkert). Access Token hämtas server-to-server med client secret (säkert). Det gör att access token aldrig exponeras i webbläsarens URL eller historik.
+Anledningen till att det är två steg: Authorization Code skickas via webbläsaren och kan potentiellt exponeras. Access Token hämtas server-to-server med client secret, så den aldrig syns i webbläsarens URL eller historik.
 
 ---
 
@@ -62,11 +56,11 @@ Entra admin center → Applications → App registrations → + New registration
 | Inställning | Värde |
 |-------------|-------|
 | Name | MyTestApp |
-| Supported account types | Single tenant only – Entra Lab |
+| Supported account types | Single tenant only |
 | Redirect URI (platform) | Web |
 | Redirect URI | https://jwt.ms |
 
-`jwt.ms` är Microsofts egna token-debugger och ett utmärkt verktyg för labbmiljöer – tokens skickas dit och dekodas direkt i webbläsaren utan att lämna klienten.
+`jwt.ms` är Microsofts token-debugger. Tokens skickas dit och dekodas direkt i webbläsaren.
 
 **Applikationsdetaljer efter registrering:**
 
@@ -86,11 +80,11 @@ MyTestApp → Certificates & secrets → + New client secret
 | Description | lab-secret |
 | Expires | 180 days |
 
-> ⚠️ **Kritiskt:** Client secret visas endast en gång direkt efter skapandet. Om du navigerar bort utan att kopiera värdet måste du skapa ett nytt secret. I produktionsmiljöer rekommenderas certifikat framför client secrets för ökad säkerhet.
+> ⚠️ Client secret visas bara en gång direkt efter skapandet. Navigerar man bort utan att kopiera värdet måste ett nytt skapas.
 
 ### 3. Hämta Authorization Code
 
-Byggde Authorization Code Flow-URL manuellt och öppnade i webbläsaren:
+Bygger Authorization Code Flow-URL och öppnar i webbläsaren:
 
 ```
 https://login.microsoftonline.com/<TENANT_ID>/oauth2/v2.0/authorize
@@ -101,11 +95,9 @@ https://login.microsoftonline.com/<TENANT_ID>/oauth2/v2.0/authorize
   &response_mode=fragment
 ```
 
-**Parametrar förklarade:**
-
 | Parameter | Värde | Förklaring |
 |-----------|-------|------------|
-| response_type | code | Begär authorization code (inte token direkt) |
+| response_type | code | Begär authorization code |
 | scope | openid profile | OIDC-scopes för användaridentitet |
 | response_mode | fragment | Code returneras i URL-fragmentet (#) |
 
@@ -114,11 +106,7 @@ Efter inloggning som Alice returnerade Microsoft en authorization code i redirec
 https://jwt.ms/#code=1.Aa8A9cw2V-I13Uuq3WRp...
 ```
 
-> **Notering:** `response_type=token` (implicit flow) returnerade felet `AADSTS700051`. Implicit flow är inaktiverat som standard i moderna Entra-appar – detta är korrekt säkerhetsbeteende. Implicit flow är deprecated och bör aldrig användas i nya applikationer.
-
 ### 4. Byta Authorization Code mot Access Token i Postman
-
-Konfigurerade en POST-förfrågan i Postman:
 
 **URL:**
 ```
@@ -147,8 +135,6 @@ https://login.microsoftonline.com/<TENANT_ID>/oauth2/v2.0/token
 }
 ```
 
-> **Notering:** Authorization codes är engångskoder med ~10 minuters giltighetstid. Vid första försöket returnerades `AADSTS70008: authorization code expired` eftersom för lång tid förflöt mellan kod-hämtning och token-byte. Lösning: hämta ny kod och byt omedelbart.
-
 ### 5. Dekoda och analysera Access Token
 
 Kopierade access token och dekodade på jwt.ms. Viktiga claims:
@@ -161,12 +147,11 @@ Kopierade access token och dekodade på jwt.ms. Viktiga claims:
 | `appid` | `<CLIENT_ID>` | MyTestApp |
 | `scp` | openid profile email | Beviljade scopes |
 | `exp` | 2026-03-26 14:38 | Token utgår om ~1h |
-| `amr` | pwd | Autentiserad med lösenord (ej MFA) |
-| `oid` | `<REDACTED>` | Alices unika objekt-ID i Entra |
+| `amr` | pwd | Autentiserad med lösenord, inte MFA |
+| `oid` | `<REDACTED>` | Alices objekt-ID i Entra |
 | `ipaddr` | `<REDACTED>` | IP-adress vid autentisering |
 
-**Säkerhetsnotering om `amr: pwd`:**
-Access token visar att Alice autentiserade med enbart lösenord, utan MFA. Detta illustrerar varför Conditional Access är kritiskt – utan CA-policies kan applikationer erhålla tokens utan MFA-krav, även i miljöer där MFA är "aktiverat". CA-policies enforcar MFA på policy-nivå, inte bara på användar-nivå.
+`amr: pwd` är värt att notera. Alice loggade in utan MFA, även om MFA är aktiverat. Det beror på att Authentication methods-policyn är aktiverad men ingen CA-policy tvingar MFA för just det här flödet. CA-policies från Lab 04 löser det.
 
 ### 6. Konfigurera API Permissions
 
@@ -177,9 +162,9 @@ MyTestApp → API permissions → + Add a permission → Microsoft Graph → Del
 | Permission | Typ | Admin Consent | Syfte |
 |------------|-----|---------------|-------|
 | User.Read | Delegated | Nej | Läs inloggad användares profil |
-| User.ReadAll | Delegated | **Ja** | Läs alla användares profiler |
+| User.ReadAll | Delegated | Ja | Läs alla användares profiler |
 
-**Admin consent beviljades** för User.ReadAll via "Grant admin consent for Entra Lab".
+Admin consent beviljades för User.ReadAll via "Grant admin consent for Entra Lab".
 
 ---
 
@@ -189,24 +174,22 @@ MyTestApp → API permissions → + Add a permission → Microsoft Graph → Del
 |--|-----------|-------------|
 | Agerar som | Inloggad användare | Applikationen själv |
 | Kräver inloggad användare | Ja | Nej |
-| Typiskt användningsfall | Webbapp som läser användarens data | Bakgrundstjänst, daemon |
-| Exempel | User.Read (läs min profil) | User.ReadAll (läs alla profiler utan inloggning) |
+| Typiskt användningsfall | Webbapp som läser användarens data | Bakgrundstjänst |
 | Risk | Begränsad av användarens behörigheter | Kan ha vida behörigheter utan mänsklig kontroll |
 
-> **Säkerhetsprincip:** Application permissions bör granskas extra noga vid säkerhetsreview – de agerar utan mänsklig kontext och kan ha tillgång till stora datamängder utan att någon användare behöver vara inloggad.
+Application permissions bör granskas noga vid säkerhetsreview. De agerar utan en inloggad användare och kan komma åt stora datamängder utan att någon märker det.
 
 ---
 
 ## Troubleshooting
 
-### Problem 1: `AADSTS700051 – response_type 'token' is not supported`
-**Orsak:** Implicit flow är inaktiverat som standard.
-**Förklaring:** Implicit flow (response_type=token) är deprecated och osäkert – tokens exponeras i webbläsarens URL. Microsoft inaktiverar det som standard i nya app registrations.
+### `AADSTS700051 – response_type 'token' is not supported`
+**Orsak:** Implicit flow är inaktiverat som standard i nya app registrations. Det är korrekt beteende eftersom implicit flow exponerar tokens i webbläsarens URL.  
 **Lösning:** Använd `response_type=code` (Authorization Code Flow) istället.
 
-### Problem 2: `AADSTS70008 – authorization code expired`
-**Orsak:** Authorization codes är giltiga i ~10 minuter och kan bara användas en gång.
-**Lösning:** Hämta ny authorization code och byt mot token omedelbart utan fördröjning.
+### `AADSTS70008 – authorization code expired`
+**Orsak:** Authorization codes är giltiga i ~10 minuter och kan bara användas en gång.  
+**Lösning:** Hämta ny code och byt mot token direkt utan fördröjning.
 
 ---
 
@@ -222,21 +205,11 @@ MyTestApp → API permissions → + Add a permission → Microsoft Graph → Del
 
 ---
 
-## Säkerhetsreflektioner
+## Reflektioner
 
-**Principle of Least Privilege för appar:** En applikation bör bara beviljas de permissions den faktiskt behöver. User.ReadAll är en kraftfull permission som ger tillgång till alla användares profiler – i en produktionsmiljö bör detta motiveras och dokumenteras.
+Det som var mest lärorikt var att se `amr: pwd` i token-claimsen. Det visar konkret att en aktiverad MFA-policy i Authentication methods inte automatiskt tvingar MFA på alla tokens. CA-policies i Lab 04 gör det jobbet.
 
-**Client secrets vs certifikat:** Client secrets är lösenord för applikationer. De kan läcka via källkod, loggar eller konfigurationsfiler. I produktionsmiljöer rekommenderas certifikat eller Managed Identities istället.
-
-**Token-livslängd:** Access tokens är giltiga i ~1 timme. Om ett token stjäls har angriparen en timmes obegränsad tillgång. Continuous Access Evaluation (CAE) kan minska denna risk genom att omedelbart revokera tokens vid säkerhetshändelser.
-
----
-
-## Nästa steg
-
-➡️ **Lab 04** – Conditional Access (Zero Trust policies)
-➡️ **Lab 05** – B2B Gäståtkomst och External Identities
-➡️ **Lab 06** – Privileged Identity Management (PIM)
+Client secrets är i princip lösenord för applikationer. I produktion ska de bytas mot certifikat eller Managed Identities, annars är de en säkerhetsrisk om de läcker via källkod eller loggar.
 
 ---
 

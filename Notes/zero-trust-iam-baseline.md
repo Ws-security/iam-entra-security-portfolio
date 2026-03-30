@@ -111,7 +111,7 @@ foreach ($p in $mfaPolicy) {
 
 ## Kontroll 4 – Blockera inloggning från högriskländer
 
-De flesta automatiserade attacker mot Microsoft 365 kommer från ett fåtal länder. Det här är en av de enklaste kontrollerna att aktivera och den skär bort en stor del av bruset utan att påverka användare i Sverige.
+De flesta automatiserade attacker mot Microsoft 365 kommer från ett fåtal länder. Kontrollen tar 15 minuter att aktivera och skär bort en stor del av bruset utan att påverka användare i Sverige.
 
 **Gör så här:**
 ```
@@ -146,7 +146,7 @@ foreach ($loc in $countryLocations) {
 
 ## Kontroll 5 – Privileged Identity Management (PIM)
 
-Förmodligen den kontroll som ger mest men som flest organisationer saknar. Permanenta admin-roller, där någon alltid är Global Administrator dygnet runt, är en av de vanligaste attackvektorerna.
+Förmodligen den kontroll som ger mest men som flest organisationer saknar. Permanenta admin-roller, där någon alltid är Global Administrator dygnet runt, är en tydlig risk.
 
 PIM gör rollerna "eligible" istället för aktiva. Vill du använda en admin-roll aktiverar du den för en begränsad tid, med en motivering och ofta ett godkännande. Ingen aktivering, inga privilegier.
 
@@ -218,7 +218,7 @@ if ($riskyUsers.Count -gt 0) {
 
 Lösenord är den svagaste länken i nästan alla säkerhetsincidenter. Passwordless via Microsoft Authenticator eller en FIDO2-nyckel tar bort risken för nätfiske och lösenordsstöld. Det finns inget lösenord att stjäla.
 
-Dessutom är det smidigare. Ett godkännande i telefonen går snabbare än att skriva ett lösenord och sedan fumla med en MFA-kod.
+Ett godkännande i telefonen går snabbare än att skriva ett lösenord och sedan fumla med en MFA-kod.
 
 **Gör så här:**
 ```
@@ -402,7 +402,7 @@ Om du ska börja från noll, gör det ungefär i den här ordningen:
 
 ## Secure Score
 
-Alla kontroller i den här guiden bidrar till ett högre Secure Score, Microsofts eget mått på hur säkert din tenant är konfigurerad.
+Kontrollerna i den här guiden syns i Secure Score, Microsofts eget mått på hur säkert din tenant är konfigurerad.
 
 ```
 Entra Admin Center → Identity Secure Score

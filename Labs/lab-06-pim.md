@@ -1,20 +1,16 @@
 # Lab 06 – Privileged Identity Management (PIM)
 
-**Datum:** Mars 2026
-**Miljö:** Microsoft 365 Business Premium + Microsoft Entra ID P2
-**Tenant:** \<tenant\>.onmicrosoft.com
-**Svårighetsgrad:** Medel–Avancerad
+**Datum:** Mars 2026  
+**Miljö:** Microsoft 365 Business Premium + Microsoft Entra ID P2  
+**Tenant:** \<tenant\>.onmicrosoft.com  
+**Svårighetsgrad:** Medel/Avancerad  
 **Tidsåtgång:** ~1.5 timmar
 
 ---
 
 ## Scenario
 
-Privilegierade konton är de mest attraktiva måltavlorna för angripare. En Global Administrator med permanent aktiv roll är ett konto som, om det komprometteras, ger angriparen total kontroll över hela tenanten – dygnet runt, utan tidsbegränsning.
-
-Privileged Identity Management (PIM) löser detta genom **Zero Standing Privilege** – principen att ingen användare ska ha privilegierad åtkomst längre än nödvändigt. Istället för permanent adminåtkomst aktiverar användaren rollen tillfälligt när den behövs, med MFA-krav, motivering och godkännande.
-
-I det här labbet konfigureras PIM för Global Administrator-rollen och hela aktiveringsflödet testas från begäran till godkännande.
+Det här labbet konfigurerar PIM för Global Administrator-rollen och kör hela aktiveringsflödet från begäran till godkännande. Alice tilldelas rollen som Eligible och aktiverar den sedan tillfälligt via ett godkänt flöde.
 
 ---
 
@@ -30,29 +26,29 @@ I det här labbet konfigureras PIM för Global Administrator-rollen och hela akt
 ## Förutsättningar
 
 - Slutfört Lab 01–05
-- Alice konfigurerad som testanvändare med Entra ID P2-licens
-- MFA registrerat för Alice (Lab 02)
+- Alice konfigurerad med Entra ID P2-licens och MFA
 
 ---
 
-## Teoriöversikt: Zero Standing Privilege
+## Hur PIM fungerar
 
-Traditionellt har adminanvändare **permanent aktiva** adminroller – de är alltid Global Administrator, dygnet runt. Det innebär att om kontot komprometteras finns det inget att stjäla utanför ett aktiveringsfönster.
+Utan PIM är adminroller permanenta. Om ett konto med Global Administrator komprometteras har angriparen full kontroll, dygnet runt, utan tidsbegränsning.
 
-PIM introducerar konceptet **Eligible** – användaren *kan* aktivera rollen men är inte aktiv admin förrän de explicit begär det:
+PIM gör roller Eligible istället för aktiva. Användaren kan aktivera rollen vid behov men är inte admin annars.
 
 ```
 Utan PIM: Angripare stjäl lösenord → Permanent Global Admin-åtkomst
-Med PIM:  Angripare stjäl lösenord → Eligible-tilldelning utan aktiv roll
-          → Måste fortfarande aktivera via MFA + motivering + godkännande
+Med PIM:  Angripare stjäl lösenord → Eligible-tilldelning, ingen aktiv roll
+          → Måste aktivera via MFA + motivering + godkännande
 ```
 
 **Eligible vs Active:**
+
 | | Eligible | Active |
 |--|----------|--------|
 | Har adminåtkomst direkt | Nej | Ja |
 | Måste aktivera | Ja | Nej |
-| Kräver MFA vid aktivering | Ja (konfigurerbart) | Nej |
+| Kräver MFA vid aktivering | Ja | Nej |
 | Tidsbegränsad | Ja (1–24h) | Kan vara permanent |
 | Rekommenderat för | Alla adminroller | Undantagsfall |
 
@@ -66,22 +62,15 @@ Med PIM:  Angripare stjäl lösenord → Eligible-tilldelning utan aktiv roll
 PIM → Microsoft Entra roles → Roles → Global Administrator → + Add assignments
 ```
 
-**Membership-fliken:**
-
 | Inställning | Värde |
 |-------------|-------|
 | Select role | Global Administrator |
 | Select member | Alice Andersson |
 | Scope type | Directory |
-
-**Setting-fliken:**
-
-| Inställning | Värde |
-|-------------|-------|
 | Assignment type | Eligible |
 | Permanently eligible | Ja |
 
-> **Varför Permanently eligible?** I en verklig miljö skulle man sätta ett utgångsdatum (t.ex. 1 år) för att tvinga fram regelbunden omprövning. För labbet används permanent eligible för enkelhetens skull.
+I en riktig miljö sätter man ett utgångsdatum (t.ex. 1 år) för att tvinga regelbunden omprövning. För labbet används permanent eligible.
 
 ### 2. Konfigurera Role Settings för Global Administrator
 
@@ -89,29 +78,25 @@ PIM → Microsoft Entra roles → Roles → Global Administrator → + Add assig
 PIM → Microsoft Entra roles → Settings → Global Administrator → Edit
 ```
 
-| Inställning | Värde | Motivering |
-|-------------|-------|------------|
-| Activation maximum duration | 4 timmar | Begränsar exponeringstiden vid aktivering |
-| On activation, require | Azure MFA | Kräver MFA även om användaren redan är inloggad |
-| Require justification | Yes | Tvingar fram dokumentation av varför rollen aktiverades |
-| Require approval to activate | Yes | Lägger till ett mänskligt kontrollsteg |
-| Approvers | Admin (1 member) | Admin godkänner alla aktiveringar |
+| Inställning | Värde |
+|-------------|-------|
+| Activation maximum duration | 4 timmar |
+| On activation, require | Azure MFA |
+| Require justification | Yes |
+| Require approval to activate | Yes |
+| Approvers | Admin (1 member) |
 
-> **Varför 4 timmar?** En typisk arbetsuppgift som kräver Global Administrator tar sällan mer än några timmar. 8 timmar (standardvärdet) är onödigt länge – om uppgiften är klar ska rollen deaktiveras. 4 timmar är en bra balans mellan praktisk användbarhet och säkerhet.
+4 timmar valdes eftersom en typisk admin-uppgift sällan tar längre tid. Standardvärdet är 8 timmar, vilket ger onödigt lång exponering om uppgiften är klar tidigare.
 
 ### 3. Testa aktiveringsflödet som Alice
 
-Loggade in som Alice på **entra.microsoft.com** i ett privat webbläsarfönster.
+Loggade in som Alice på entra.microsoft.com i privat webbläsarfönster.
 
 ```
 PIM → My roles → Eligible assignments → Global Administrator → Activate
 ```
 
-Alice fyllde i:
-- **Motivering:** (beskrivning av varför rollen behövs)
-- **Duration:** upp till 4 timmar
-
-Status efter begäran: **"Pending approval"** – Alice inväntar godkännande från admin.
+Alice fyllde i motivering och vald duration (upp till 4 timmar). Status efter begäran: "Pending approval".
 
 ### 4. Godkänna begäran som admin
 
@@ -119,15 +104,13 @@ Status efter begäran: **"Pending approval"** – Alice inväntar godkännande f
 PIM → Microsoft Entra roles → Approve requests
 ```
 
-Admin såg Alices begäran, granskade motiveringen och godkände den. Alice fick omedelbart tillfällig Global Administrator-åtkomst.
+Granskade Alices begäran och motivering, godkände. Alice fick omedelbart tillfällig Global Administrator-åtkomst.
 
 ### 5. Verifiera i Resource audit
 
 ```
 PIM → Microsoft Entra roles → Resource audit
 ```
-
-Hela flödet loggades med fullständig revisionsspårning:
 
 | Tid | Requestor | Action | Target | Status |
 |-----|-----------|--------|--------|--------|
@@ -141,7 +124,7 @@ Hela flödet loggades med fullständig revisionsspårning:
 
 ---
 
-## Verifiering – sammanfattning
+## Verifiering
 
 | Kontroll | Status |
 |----------|--------|
@@ -153,22 +136,17 @@ Hela flödet loggades med fullständig revisionsspårning:
 
 ---
 
-## Säkerhetsreflektioner
+## Troubleshooting
 
-**Zero Standing Privilege eliminerar den största risken:** Med PIM finns det inget permanent privilegierat konto att stjäla. Även om en angripare komprometterar Alices konto har de bara en Eligible-tilldelning – de kan inte aktivera rollen utan att passera MFA-kravet och vänta på admin-godkännande.
-
-**Audit trail är obligatoriskt för compliance:** Varje PIM-aktivering loggas med vem som begärde, när, varför och vem som godkände. Det är exakt den revisionsspårning som krävs för NIS2, ISO 27001 och SOC 2-compliance.
-
-**Godkännandeflödet är ett komplement, inte ett hinder:** I verkligheten kan godkännare vara tillgängliga via Microsoft Authenticator-appen och svara på sekunder. Det är en minimal fördröjning för en stor säkerhetsvinst.
-
-**Break-glass är fortfarande kritiskt:** Break-glass-kontot (Lab 01) ska aldrig hanteras via PIM – det ska ha permanent Global Administrator för att fungera i nödfall när PIM-infrastrukturen kanske inte är tillgänglig.
+Inga problem uppstod under labbet. Flödet fungerade som förväntat.
 
 ---
 
-## Nästa steg
+## Reflektioner
 
-➡️ **Lab 07** – Identity Protection och riskbaserade policies
-➡️ **Lab 08** – Entitlement Management och Access Packages
+Resource audit-loggen är det tydligaste exemplet på varför PIM är värdefullt utöver ren säkerhet. Varje aktivering är loggad med vem som begärde, när, varför och vem som godkände. Det är precis vad som krävs vid NIS2- och ISO 27001-revisioner.
+
+Break-glass-kontot ska aldrig hanteras via PIM. Det ska ha permanent Global Administrator för att kunna användas i nödfall även om PIM-infrastrukturen av någon anledning inte är tillgänglig.
 
 ---
 
