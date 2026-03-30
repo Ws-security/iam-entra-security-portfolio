@@ -42,7 +42,7 @@ Hands-on labs focused on Microsoft Entra and IAM fundamentals.
 | [Lab 04 – Conditional Access](Labs/lab-04-conditional-access.md) | Zero Trust policies, Named Locations, What If, Phishing-resistant MFA | ✅ Complete |
 | [Lab 05 – B2B & External Identities](Labs/lab-05-b2b-external-identities.md) | Guest access, External collaboration settings, Access Reviews | ✅ Complete |
 | [Lab 06 – PIM](Labs/lab-06-pim.md) | Privileged Identity Management, just-in-time access, approval workflow | ✅ Complete |
-| Lab 07 – Identity Protection | Risk policies, Sign-in risk, User risk | ⏳ Upcoming |
+| [Lab 07 – Identity Protection](Labs/lab-07-identity-protection.md) | Risk-based CA policies, User risk, Sign-in risk | ✅ Complete |
 | Lab 08 – Entitlement Management | Access Packages, Access Reviews, governance | ⏳ Upcoming |
 
 ### 📁 cases
