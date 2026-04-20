@@ -45,6 +45,7 @@ Hands-on labs focused on Microsoft Entra and IAM fundamentals.
 | [Lab 07 – Identity Protection](Labs/lab-07-identity-protection.md) | Risk-based CA policies, User risk, Sign-in risk | ✅ Complete |
 | [Lab 08 – Entitlement Management](Labs/lab-08-entitlement-management.md) | Access Packages, Catalogs, approval workflow, lifecycle management | ✅ Complete |
 | [Lab 09 – SAML-based SSO](Labs/lab-09-SAML-based-SSO.md) | SAML federation, Enterprise Applications, SP-initiated SSO | ✅ Complete |
+| [Lab 10 – Graph API & Automation](Labs/lab-10-graph-api-automation.md) | Microsoft Graph PowerShell SDK, MFA-status, CA-policies, PIM, Risky users | ✅ Complete |
 
 ### 📁 cases
 Consulting-style IAM design cases and structured security recommendations.
