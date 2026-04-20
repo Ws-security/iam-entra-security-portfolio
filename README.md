@@ -46,9 +46,15 @@ Hands-on labs focused on Microsoft Entra and IAM fundamentals.
 | [Lab 08 – Entitlement Management](Labs/lab-08-entitlement-management.md) | Access Packages, Catalogs, approval workflow, lifecycle management | ✅ Complete |
 | [Lab 09 – SAML-based SSO](Labs/lab-09-SAML-based-SSO.md) | SAML federation, Enterprise Applications, SP-initiated SSO | ✅ Complete |
 | [Lab 10 – Graph API & Automation](Labs/lab-10-graph-api-automation.md) | Microsoft Graph PowerShell SDK, MFA-status, CA-policies, PIM, Risky users | ✅ Complete |
+| [Lab 11 – Cross-tenant Access Settings](Labs/lab-11-cross-tenant-access.md) | Trust settings, Organizational settings, Automatic redemption, Microsoft cloud settings | ✅ Complete |
 
 ### 📁 cases
 Consulting-style IAM design cases and structured security recommendations.
+
+| Case | Topic | Status |
+|------|-------|--------|
+| [Secure Score Review](Cases/case-secure-score-review.md) | Microsoft Secure Score genomgång, prioritering och åtgärder via Graph API | ✅ Complete |
+| [NIS2 IAM Mapping](Cases/nis2-iam-mapping.md) | NIS2 artikel 21-krav mappade mot Entra ID-kontroller och genomförda labb | ✅ Complete |
 
 ### 📁 notes
 Supporting notes and IAM concepts relevant to Entra and identity security.
